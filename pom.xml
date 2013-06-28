@@ -6,7 +6,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.wordnik</groupId>
-  <artifactId>swagger-project_${scala-version}</artifactId>
+  <artifactId>swagger-project_2.10</artifactId>
   <packaging>pom</packaging>
   <name>wordnik-swagger-project</name>
   <version>1.0.4-wordnik</version>
@@ -325,7 +325,7 @@
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>
-        <version>${scala-version}</version>
+        <version>2.10</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -351,7 +351,7 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>swagger-jaxrs_${scala-version}</artifactId>
+        <artifactId>swagger-jaxrs_2.10</artifactId>
         <version>${pom.version}</version>
       </dependency>
       <dependency>
@@ -390,7 +390,7 @@
       </dependency>
       <dependency>
         <groupId>org.scalatest</groupId>
-        <artifactId>scalatest_${scala-version}</artifactId>
+        <artifactId>scalatest_2.10</artifactId>
         <version>${scala-test-version}</version>
         <scope>test</scope>
       </dependency>
@@ -402,7 +402,7 @@
       </dependency>
       <dependency>
         <groupId>com.wordnik</groupId>
-        <artifactId>swagger-core_${scala-version}</artifactId>
+        <artifactId>swagger-core_2.10</artifactId>
         <version>${pom.version}</version>
         <scope>compile</scope>
         <exclusions>
