@@ -300,15 +300,15 @@
     <module>modules/swagger-jersey-jaxrs</module>
     <module>modules/swagger-servlet</module>
 
-    <!--module>samples/java-resteasy</module>
+    <module>samples/java-resteasy</module>
     <module>samples/java-jaxrs</module>
     <module>samples/java-dropwizard</module>
     <module>samples/scala-jaxrs</module>
-    <module>samples/scala-servlet</module-->
+    <module>samples/scala-servlet</module>
     <!--module>samples/scala-oauth-authorization-server</module-->
-    <!--module>samples/java-jaxrs-subresource</module>
+    <module>samples/java-jaxrs-subresource</module>
     <module>samples/scala-jaxrs-fileupload</module>
-    <module>samples/java-jaxrs-cxf</module-->
+    <module>samples/java-jaxrs-cxf</module>
 
 <!--
     <module>modules/swagger-jaxrs-utils</module>
