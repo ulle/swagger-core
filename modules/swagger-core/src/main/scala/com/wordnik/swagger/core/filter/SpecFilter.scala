@@ -48,7 +48,7 @@ class SpecFilter {
           Some(op.copy(parameters = filteredParams))
         }
         else None
-      }).flatten.toList
+      }).flatten.toList.sortWith(_.position < _.position)
       filteredOps.size match {
         case 0 => None
         case _ => Some(api.copy(operations = filteredOps))

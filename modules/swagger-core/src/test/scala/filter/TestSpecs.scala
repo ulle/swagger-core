@@ -2,6 +2,7 @@ package filter
 
 import com.wordnik.swagger.core.filter._
 import com.wordnik.swagger.model._
+import com.wordnik.swagger.core.SwaggerSpec
 
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -10,6 +11,23 @@ import org.json4s.native.Serialization.{read, write}
 
 object TestSpecs {
   implicit val formats = SwaggerSerializers.formats
+
+  def ordered = {
+    val apis = List(
+      ApiDescription("/", None, List(
+        Operation("GET", "does something", "notes", "void", "getSomething", 2),
+        Operation("POST", "does something else", "notes", "void", "postSomething", 1)
+        )
+      )
+    )
+    ApiListing(
+      apiVersion = "1.0.0",
+      swaggerVersion = SwaggerSpec.version,
+      basePath = "http://localhost:8080/api",
+      resourcePath = "/myApi",
+      apis = apis
+    )
+  }
 
   def getSimple = {
     val str = 

@@ -9,7 +9,6 @@ import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.mutable.{ListBuffer, LinkedHashMap}
 
-// object SwaggerJsonSchemaSerializers extends Serializers {
 object SwaggerSerializers extends Serializers {
   import ValidationMessage._
 
@@ -214,8 +213,8 @@ object SwaggerSerializers extends Serializers {
   ))
 }
 
+// no longer used
 object SwaggerJsonSchemaSerializers extends Serializers {
-// object SwaggerSerializers extends Serializers {
   implicit val formats = DefaultFormats + 
     new ModelSerializer + 
     new ModelPropertySerializer +

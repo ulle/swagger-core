@@ -63,6 +63,17 @@ class SpecFilterTest extends FlatSpec with ShouldMatchers {
     p.apis.size should be (1)
     p.models.get.size should be (2)
   }
+
+  it should "ensure order is preserved after filtering" in {
+    val spec = TestSpecs.ordered
+    val p = new SpecFilter().filter(spec, new SimpleFilter, Map(), Map(), Map())
+
+    p.apis.size should be (1)
+    val ops = p.apis(0).operations
+    ops.size should be (2)
+    ops(0).method should be ("POST")
+    ops(1).method should be ("GET")
+  }
 }
 
 class SimpleFilter extends SwaggerSpecFilter {
