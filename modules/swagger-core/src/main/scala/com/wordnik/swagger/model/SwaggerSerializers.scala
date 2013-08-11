@@ -19,7 +19,7 @@ object SwaggerSerializers extends Serializers {
     new JsonSchemaModelRefSerializer + 
     new AllowableValuesSerializer + 
     new JsonSchemaParameterSerializer +
-    new OperationSerializer +
+    new JsonSchemaOperationSerializer +
     new ResponseMessageSerializer +
     new ApiDescriptionSerializer +
     new ApiListingReferenceSerializer +
@@ -107,7 +107,7 @@ object SwaggerSerializers extends Serializers {
           case ComplexTypeMatcher(container, value) => 
             toJsonSchemaContainer(container) ~ {
               ("items" -> {if(isSimpleType(value))
-                  toJsonSchema("items", value)
+                  toJsonSchema("type", value)
                 else
                   toJsonSchema("$ref", value)})
             }
@@ -159,6 +159,79 @@ object SwaggerSerializers extends Serializers {
       case _ => typeInfo._1
     }
   }
+
+  class JsonSchemaOperationSerializer extends CustomSerializer[Operation](formats => ({
+    case json =>
+      implicit val fmts: Formats = formats
+      Operation(
+        (json \ "method").extractOrElse({
+          !!(json, OPERATION, "method", "missing required field", ERROR)
+          ""
+        }),
+        (json \ "summary").extract[String],
+        (json \ "notes").extractOrElse(""),
+        (json \ "responseClass").extractOrElse({
+          !!(json, OPERATION, "responseClass", "missing required field", ERROR)
+          ""
+        }),
+        (json \ "nickname").extractOrElse({
+          !!(json, OPERATION, "nickname", "missing required field", ERROR)
+          ""
+        }),
+        (json \ "position").extractOrElse(0),
+        (json \ "produces").extractOrElse(List()),
+        (json \ "consumes").extractOrElse(List()),
+        (json \ "protocols").extractOrElse(List()),
+        (json \ "authorizations").extractOrElse(List()),
+        (json \ "parameters").extract[List[Parameter]],
+        (json \ "responseMessages").extract[List[ResponseMessage]],
+        (json \ "deprecated").extractOpt[String]
+      )
+    }, {
+      case x: Operation =>
+      implicit val fmts = formats
+
+      val output = toJsonSchema("type", x.responseClass)
+
+      ("method" -> x.method) ~
+      ("summary" -> x.summary) ~
+      ("notes" -> x.notes) ~
+      output ~
+      ("nickname" -> x.nickname) ~
+      ("produces" -> {
+        x.produces match {
+          case e: List[String] if(e.size > 0) => Extraction.decompose(e)
+          case _ => JNothing
+        }
+      }) ~
+      ("consumes" -> {
+        x.consumes match {
+          case e: List[String] if(e.size > 0) => Extraction.decompose(e)
+          case _ => JNothing
+        }
+      }) ~
+      ("protocols" -> {
+        x.protocols match {
+          case e: List[String] if(e.size > 0) => Extraction.decompose(e)
+          case _ => JNothing
+        }
+      }) ~
+      ("authorizations" -> {
+        x.authorizations match {
+          case e: List[String] if(e.size > 0) => Extraction.decompose(e)
+          case _ => JNothing
+        }
+      }) ~
+      ("parameters" -> Extraction.decompose(x.parameters)) ~
+      ("responseMessages" -> {
+        x.responseMessages match {
+          case e: List[ResponseMessage] if(e.size > 0) => Extraction.decompose(e)
+          case _ => JNothing
+        }
+      }) ~
+      ("deprecated" -> x.`deprecated`)
+    }
+  ))
 
   class JsonSchemaModelPropertySerializer extends CustomSerializer[ModelProperty] (formats => ({
     case json =>
@@ -272,8 +345,8 @@ object SwaggerSerializers extends Serializers {
           ""
         }),
         (json \ "allowableValues").extract[AllowableValues],
-        (json \ "paramType").extractOrElse({
-          !!(json, OPERATION_PARAM, "paramType", "missing required field", ERROR)
+        (json \ "type").extractOrElse({
+          !!(json, OPERATION_PARAM, "type", "missing required field", ERROR)
           ""
         }),
         (json \ "paramAccess").extractOpt[String]
