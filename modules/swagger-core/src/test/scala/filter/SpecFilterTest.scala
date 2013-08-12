@@ -74,6 +74,14 @@ class SpecFilterTest extends FlatSpec with ShouldMatchers {
     ops(0).method should be ("POST")
     ops(1).method should be ("GET")
   }
+
+  it should "maintain declared subTypes" in {
+    val spec = TestSpecs.subTypes
+    spec.models.get.size should be (3)
+
+    val filtered = new SpecFilter().filter(spec, new SimpleFilter, Map(), Map(), Map())
+    filtered.models.get.keys should be (Set("Animal", "WildAnimal", "DomesticAnimal"))
+  }
 }
 
 class SimpleFilter extends SwaggerSpecFilter {
