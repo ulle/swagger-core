@@ -1,70 +1,72 @@
 {
   "type": "object",
   "$schema": "http://json-schema.org/draft-04/schema",
-  "required": false,
+  "required": [
+    "swaggerVersion",
+    "resourcePath",
+    "apis",
+    "basePath"
+  ],
   "properties": {
     "apiVersion": {
-      "type": "string",
-      "required": true
+      "type": "string"
+    },
+    "basePath": {
+      "type": "string"
     },
     "swaggerVersion": {
-      "type": "string",
-      "required": true,
       "enum": [
         "1.2"
       ]
     },
     "consumes": {
       "type": "array",
-      "required": false,
       "items": {
-        "type": "string",
-        "required": false
+        "type": "string"
       }
     },
     "produces": {
       "type": "array",
-      "required": false,
       "items": {
-        "type": "string",
-        "required": false
+        "type": "string"
       }
     },
     "resourcePath": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "apis": {
       "type": "array",
-      "required": false,
       "items": [
         {
           "type": "object",
-          "required": false,
+          "required": [
+            "path",
+            "operations"
+          ],
           "properties": {
             "path": {
-              "type": "string",
-              "required": false
+              "type": "string"
             },
             "operations": {
               "type": "array",
-              "required": false,
               "items": [
                 {
                   "type": "object",
-                  "required": false,
+                  "required": [
+                    "method",
+                    "nickname",
+                    "summary",
+                    "type"
+                  ],
                   "properties": {
                     "authorizations": {
                       "type": "array",
-                      "required": false,
                       "items": {
-                        "type": "string",
-                        "required": false
+                        "type": "string"
                       }
                     },
                     "method": {
                       "type": "string",
-                      "required": false,
                       "enum": [
                         "GET",
                         "PUT",
@@ -75,39 +77,43 @@
                       ]
                     },
                     "nickname": {
-                      "type": "string",
-                      "required": true
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
                     },
                     "notes": {
-                      "type": "string",
-                      "required": false
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
                     },
                     "parameters": {
                       "type": "array",
-                      "required": false,
                       "items": {
                         "type": "object",
-                        "required": false,
+                        "required": [
+                          "name",
+                          "paramType",
+                          "required",
+                          "type"
+                        ],
                         "properties": {
                           "allowMultiple": {
                             "type": "boolean",
-                            "required": false,
                             "enum": [
                               true,
                               false
                             ]
                           },
                           "description": {
-                            "type": "string",
-                            "required": false
+                            "type": "string"
                           },
                           "name": {
-                            "type": "string",
-                            "required": true
+                            "type": "string"
                           },
                           "paramType": {
                             "type": "string",
-                            "required": true,
                             "enum": [
                               "query",
                               "path",
@@ -117,52 +123,47 @@
                           },
                           "required": {
                             "type": "boolean",
-                            "required": false,
                             "enum": [
                               true,
                               false
                             ]
                           },
                           "type": {
-                            "type": "string",
-                            "required": true
+                            "type": "string"
+                          },
+                          "items": {
+                            "anyOf": [
+                              {
+                                "$ref": "#"
+                              },
+                              {
+                                "$ref": "#/definitions/schemaArray"
+                              }
+                            ],
+                            "default": {}
                           }
                         }
                       }
                     },
                     "produces": {
                       "type": "array",
-                      "required": false,
                       "items": {
-                        "type": "string",
-                        "required": false
+                        "type": "string"
                       }
                     },
                     "responseMessages": {
                       "type": "array",
-                      "required": false,
                       "items": {
                         "type": "object",
-                        "required": false,
                         "properties": {
                           "code": {
-                            "type": "number",
-                            "required": false
+                            "type": "number"
                           },
                           "message": {
-                            "type": "string",
-                            "required": false
+                            "type": "string"
                           }
                         }
                       }
-                    },
-                    "summary": {
-                      "type": "string",
-                      "required": false
-                    },
-                    "type": {
-                      "type": "string",
-                      "required": true
                     }
                   }
                 }
@@ -172,10 +173,8 @@
         }
       ]
     },
-    "basePath": {
-      "type": "string",
-      "id": "http://jsonschema.net/basePath",
-      "required": false
+    "models": {
+      
     }
   }
 }
