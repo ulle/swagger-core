@@ -2,7 +2,7 @@ package converter.models
 
 import com.wordnik.swagger.annotations.ApiModel
 
-@ApiModel(value="a model with subtypes", subTypes = Array(classOf[DomesticAnimal], classOf[WildAnimal]))
+@ApiModel(value="a model with subtypes", discriminator = "name", subTypes = Array(classOf[DomesticAnimal], classOf[WildAnimal]))
 case class Animal (
   name: String,
   date: java.util.Date)

@@ -1,6 +1,7 @@
 package com.wordnik.swagger.model
 
 import com.wordnik.swagger.core.SwaggerSpec
+import com.wordnik.swagger.core.util.ModelUtil
 
 import org.json4s._
 import org.json4s.JsonDSL._
@@ -68,7 +69,7 @@ object SwaggerSerializers extends Serializers {
       })) ~
       ("extends" -> {
         x.baseModel match {
-          case Some(e) if(e != "void") => Extraction.decompose(e)
+          case Some(e) if(e != "void" && e != "java.lang.Void") => Extraction.decompose(e)
           case _ =>JNothing
         }
       }) ~
@@ -84,6 +85,14 @@ object SwaggerSerializers extends Serializers {
             (for((key, value) <- e) yield (key -> Extraction.decompose(value))).toList
           }
           case _ => List.empty
+        }
+      }) ~
+      ("subTypes" -> {
+        x.subTypes match {
+          case e: List[String] if (e.size > 0) => {
+            Extraction.decompose(for(m <- e) yield ModelUtil.cleanDataType(m))
+          }
+          case _ => JNothing
         }
       })
     }
