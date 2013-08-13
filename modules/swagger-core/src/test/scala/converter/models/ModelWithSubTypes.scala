@@ -1,18 +1,20 @@
 package converter.models
 
-import com.wordnik.swagger.annotations.ApiModel
+import com.wordnik.swagger.annotations.{ ApiModel, ApiModelProperty }
+
+import scala.annotation.target.field
 
 @ApiModel(value="a model with subtypes", discriminator = "name", subTypes = Array(classOf[DomesticAnimal], classOf[WildAnimal]))
 case class Animal (
-  name: String,
-  date: java.util.Date)
+  @(ApiModelProperty @field)(value = "name of animal", position = 1) name: String,
+  @(ApiModelProperty @field)(value = "date added", position = 2) date: java.util.Date)
 
 case class DomesticAnimal (
-  name: String,
-  safeForChildren: Boolean,
-  date: java.util.Date)
+  @(ApiModelProperty @field)(value = "name of animal", position = 1) name: String,
+  @(ApiModelProperty @field)(value = "animals are safe for children", position = 2) safeForChildren: Boolean,
+  @(ApiModelProperty @field)(value = "date added", position = 3) date: java.util.Date)
 
 case class WildAnimal (
-  name: String,
-  foundInLocation: String,
-  date: java.util.Date)
+  @(ApiModelProperty @field)(value = "name of animal", position = 1) name: String,
+  @(ApiModelProperty @field)(value = "location found in", position = 2) foundInLocation: String,
+  @(ApiModelProperty @field)(value = "date added", position = 3) date: java.util.Date)
