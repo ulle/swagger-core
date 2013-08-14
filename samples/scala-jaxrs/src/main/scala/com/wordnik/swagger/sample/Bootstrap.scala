@@ -36,9 +36,4 @@ class Bootstrap extends HttpServlet {
     licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html")
 
   ConfigFactory.config.info = Some(info)
-  ConfigFactory.config = new MyCustomConfig
-}
-
-class MyCustomConfig extends SwaggerConfig {
-  basePath = "http://hello.com"
 }
