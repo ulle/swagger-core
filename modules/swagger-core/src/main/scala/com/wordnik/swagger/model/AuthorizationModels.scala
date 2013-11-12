@@ -16,8 +16,29 @@
 
 package com.wordnik.swagger.model
 
+import scala.collection.mutable.ListBuffer
+
+import scala.collection.JavaConverters._
+
 trait AuthorizationType {
   def `type`: String
+}
+
+class OAuthBuilder {
+  val _scopes = new ListBuffer[String]
+  val _grantTypes = new ListBuffer[GrantType]
+
+  def scopes(s: java.util.List[String]) = {
+    _scopes ++= s.asScala.toList
+    this
+  }
+  def grantTypes(g: java.util.List[GrantType]) = {
+    _grantTypes ++= g.asScala.toList
+    this
+  }
+  def build() = {
+    OAuth(_scopes.toList, _grantTypes.toList)
+  }
 }
 case class OAuth(
   scopes: List[String], 
@@ -26,6 +47,9 @@ case class OAuth(
 }
 case class ApiKey(keyname: String, passAs: String = "header") extends AuthorizationType {
   override def `type` = "apiKey"
+}
+case class BasicAuth() extends AuthorizationType {
+  override def `type` = "basicAuth"
 }
 
 trait GrantType {

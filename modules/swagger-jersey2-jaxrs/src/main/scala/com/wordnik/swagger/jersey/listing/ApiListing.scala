@@ -1,4 +1,4 @@
-package com.wordnik.swagger.jaxrs.listing
+package com.wordnik.swagger.jersey.listing
 
 import com.wordnik.swagger.config._
 import com.wordnik.swagger.reader._
@@ -19,21 +19,19 @@ import javax.ws.rs.core.Response._
 import javax.ws.rs._
 import javax.ws.rs.ext.Provider
 
-import javax.servlet.ServletConfig
+import org.glassfish.jersey.servlet.WebConfig
 
 import scala.collection.mutable.LinkedHashMap
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
-import com.wordnik.swagger.core.util.ReaderUtil
-
-object ApiListingCache extends ReaderUtil {
+object ApiListingCache {
   private val LOGGER = LoggerFactory.getLogger(ApiListingCache.getClass)
 
   var _cache: Option[Map[String, ApiListing]] = None
 
-  def listing(docRoot: String, app: Application, sc: ServletConfig): Option[Map[String, ApiListing]] = {
+  def listing(docRoot: String, app: Application, wc: WebConfig): Option[Map[String, ApiListing]] = {
     _cache.orElse{
       LOGGER.debug("loading cache")
       ClassReaders.reader.map{reader => 
@@ -44,14 +42,13 @@ object ApiListingCache extends ReaderUtil {
           }
           // For each top level resource, parse it and look for swagger annotations.
           val listings = (for(cls <- classes) yield reader.read(docRoot, cls, ConfigFactory.config)).flatten.toList
-          val mergedListings = groupByResourcePath(listings)
-          _cache = Some((mergedListings.map(m => {
+          _cache = Some((listings.map(m => {
             // always start with "/"
             val resourcePath = m.resourcePath.startsWith ("/") match {
               case true => m.resourcePath
               case false => "/" + m.resourcePath
             }
-            LOGGER.debug("adding resource path " + resourcePath)
+            LOGGER.debug("added " + resourcePath + " to cache")
             (resourcePath, m)
           })).toMap)
         })
@@ -76,13 +73,13 @@ class ApiListingResource {
   @GET
   def resourceListing (
     @Context app: Application,
-    @Context sc: ServletConfig,
+    @Context wc: WebConfig,
     @Context headers: HttpHeaders,
     @Context uriInfo: UriInfo
   ): Response = {
     val docRoot = this.getClass.getAnnotation(classOf[Path]).value
     val f = new SpecFilter
-    val listings = ApiListingCache.listing(docRoot, app, sc).map(specs => {
+    val listings = ApiListingCache.listing(docRoot, app, wc).map(specs => {
       (for(spec <- specs.values) 
         yield f.filter(spec, FilterFactory.filter, paramsToMap(uriInfo.getQueryParameters), cookiesToMap(headers), headersToMap(headers))
       ).filter(m => m.apis.size > 0)
@@ -109,7 +106,7 @@ class ApiListingResource {
   def apiDeclaration (
     @PathParam("route") route: String,
     @Context app: Application,
-    @Context sc: ServletConfig,
+    @Context wc: WebConfig,
     @Context headers: HttpHeaders,
     @Context uriInfo: UriInfo
   ): Response = {
@@ -118,7 +115,7 @@ class ApiListingResource {
     val f = new SpecFilter
     val pathPart = cleanRoute(route)
     LOGGER.debug("requested route " + pathPart)
-    val listings = ApiListingCache.listing(docRoot, app, sc).map(specs => {
+    val listings = ApiListingCache.listing(docRoot, app, wc).map(specs => {
       (for(spec <- specs.values) yield {
         LOGGER.debug("inspecting path " + spec.resourcePath)
         f.filter(spec, FilterFactory.filter, paramsToMap(uriInfo.getQueryParameters), cookiesToMap(headers), headersToMap(headers))
@@ -132,7 +129,7 @@ class ApiListingResource {
     }).toList.flatten
 
     listings.size match {
-      case 1 => Response.ok(listings(0)).build
+      case 1 => Response.ok(listings.head).build
       case _ => Response.status(404).build
     }
   }
@@ -164,4 +161,5 @@ class ApiListingResource {
   def headersToMap(headers: HttpHeaders): Map[String, List[String]] = {
     (for((key, values) <- headers.getRequestHeaders.asScala) yield (key, values.asScala.toList)).toMap
   }
+
 }

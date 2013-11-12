@@ -33,9 +33,8 @@ import core.Context
 import java.lang.reflect.{ Type, Field, Modifier, Method }
 import java.lang.annotation.Annotation
 
-import com.sun.jersey.core.header.FormDataContentDisposition
-import com.sun.jersey.multipart.FormDataParam
-import com.sun.jersey.api.core.InjectParam
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition
+import org.glassfish.jersey.media.multipart.FormDataParam
 
 class JerseyApiReader extends JaxrsApiReader {
   private val LOGGER = LoggerFactory.getLogger(classOf[JerseyApiReader])
@@ -78,17 +77,13 @@ class JerseyApiReader extends JaxrsApiReader {
               mutable.dataType = "File"
             }
             case "file" => 
-            case "com.sun.jersey.core.header.FormDataContentDisposition" => shouldIgnore = true
+            case "org.glassfish.jersey.media.multipart.FormDataContentDisposition" => shouldIgnore = true
             case _ => {
               mutable.name = readString(e.value, mutable.name)
               mutable.paramType = readString(TYPE_FORM, mutable.paramType)
             }
           }
         }
-        case e: DefaultValue => {
-          mutable.defaultValue = Option(readString(e.value))
-        }
-        case e: InjectParam => shouldIgnore = true
         case e: Context => shouldIgnore = true
         case _ =>
       }
