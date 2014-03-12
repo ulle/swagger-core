@@ -15,7 +15,10 @@ import javax.ws.rs.core.Context
 
 import scala.collection.mutable.{ ListBuffer, HashMap, HashSet }
 
-class DefaultJaxrsApiReader extends JaxrsApiReader {
+class BasicJaxrsReader extends JaxrsApiReader {
+  var ignoredRoutes: Set[String] = Set()
+
+  def ignoreRoutes = ignoredRoutes
   def readRecursive(
     docRoot: String, 
     parentPath: String, cls: Class[_], 
@@ -23,30 +26,48 @@ class DefaultJaxrsApiReader extends JaxrsApiReader {
     operations: ListBuffer[Tuple3[String, String, ListBuffer[Operation]]],
     parentMethods: ListBuffer[Method]): Option[ApiListing] = {
     val api = cls.getAnnotation(classOf[Api])
+    val pathAnnotation = cls.getAnnotation(classOf[Path])
 
-    // must have @Api annotation to process!
-    if(api != null) {
-      val consumes = Option(api.consumes) match {
-        case Some(e) if(e != "") => e.split(",").map(_.trim).toList
-        case _ => cls.getAnnotation(classOf[Consumes]) match {
-          case e: Consumes => e.value.toList
-          case _ => List()
-        }
+    val r = Option(api) match {
+      case Some(api) => api.value
+      case None => Option(pathAnnotation) match {
+        case Some(p) => p.value
+        case None => null
       }
-      val produces = Option(api.produces) match {
-        case Some(e) if(e != "") => e.split(",").map(_.trim).toList
-        case _ => cls.getAnnotation(classOf[Produces]) match {
-          case e: Produces => e.value.toList
-          case _ => List()
-        }
+    }
+
+    if(r != null && !ignoreRoutes.contains(r)) {
+      var resourcePath = addLeadingSlash(r)
+      val position = Option(api) match {
+        case Some(api) => api.position
+        case None => 0
       }
-      val protocols = Option(api.protocols) match {
-        case Some(e) if(e != "") => e.split(",").map(_.trim).toList
-        case _ => List()
-      }
-      val description = api.description match {
-        case e: String if(e != "") => Some(e)
-        case _ => None
+      val (consumes, produces, protocols, description) = {
+        if(api != null){
+          (Option(api.consumes) match {
+            case Some(e) if(e != "") => e.split(",").map(_.trim).toList
+            case _ => cls.getAnnotation(classOf[Consumes]) match {
+              case e: Consumes => e.value.toList
+              case _ => List()
+            }
+          },
+          Option(api.produces) match {
+            case Some(e) if(e != "") => e.split(",").map(_.trim).toList
+            case _ => cls.getAnnotation(classOf[Produces]) match {
+              case e: Produces => e.value.toList
+              case _ => List()
+            }
+          },
+          Option(api.protocols) match {
+            case Some(e) if(e != "") => e.split(",").map(_.trim).toList
+            case _ => List()
+          },
+          api.description match {
+            case e: String if(e != "") => Some(e)
+            case _ => None
+          }
+        )}
+        else ((List(), List(), List(), None))
       }
       // look for method-level annotated properties
       val parentParams: List[Parameter] = (for(field <- getAllFields(cls)) 
@@ -83,10 +104,8 @@ class DefaultJaxrsApiReader extends JaxrsApiReader {
             parentMethods -= method
           }
           case _ => {
-            if(method.getAnnotation(classOf[ApiOperation]) != null) {
-              val op = readMethod(method, parentParams, parentMethods)
-              appendOperation(endpoint, path, op, operations)
-            }
+            val op = readMethod(method, parentParams, parentMethods)
+            appendOperation(endpoint, path, op, operations)
           }
         }
       }
@@ -112,14 +131,14 @@ class DefaultJaxrsApiReader extends JaxrsApiReader {
         apiVersion = config.apiVersion,
         swaggerVersion = config.swaggerVersion,
         basePath = config.basePath,
-        resourcePath = addLeadingSlash(api.value),
+        resourcePath = addLeadingSlash(resourcePath),
         apis = ModelUtil.stripPackages(apis),
         models = models,
         description = description,
         produces = produces,
         consumes = consumes,
         protocols = protocols,
-        position = api.position)
+        position = position)
       )
     }
     else None
